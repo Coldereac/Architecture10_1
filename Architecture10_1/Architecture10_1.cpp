@@ -2,42 +2,44 @@
 #include <iomanip>
 #include <fstream>
 using namespace std;
-void main()
-{
-	int arr[25] = { -77, -54, -50, 0, -36, 38, 33, -16, 34, -85, 90, 44, -63, 76, 9, 15, 32, -55, 29, 87, 8, -15, -48, 19, -38 };//source array
-	int neg; //variable to hold the number of
-	_asm
-	{ //The beginning of the assembly
 
-		pushad //Push the values of all 32-bit general
-		xor edx, edx //for storage number of negative element
-		lea eax, arr //eax <- pointer(arr
-		mov ecx, 25 //ecx <- colCount
+void main() {
+    // Ініціалізація масиву з 25 цілих чисел
+    int arr[25] = { -77, -54, -50, 0, -36, 38, 33, -16, 34, -85, 90, 44, -63, 76, 9, 15, 32, -55, 29, 87, 8, -15, -48, 19, -38 };
+    int neg; // Змінна для зберігання кількості від'ємних чисел
 
-		_loop : //label
-		push ecx //save pointer
-			push eax //save pointer
-			cmp[eax], 0 //comparing elements to find negative
-			jl _lower //jump to label "_lower" if the elemen
+    _asm {
+        pushad             // Зберігаємо всі регістри на стек
+        xor edx, edx       // Очищаємо регістр edx (він буде використовуватися для підрахунку від'ємних елементів)
+        lea eax, arr       // Завантажуємо адресу масиву arr в регістр eax
+        mov ecx, 25        // Встановлюємо лічильник циклу (кількість елементів в масиві)
 
-			jmp _step //jump to label "step"
-			_lower : //label
-		inc edx //edx + 1
-			jmp _step //jump to label "step"
-			_step : //label
-		pop eax //return pointer
-			add eax, 4 //jump to the next row element
-			pop ecx //return pointer
-			loop _loop //until the counter is zero go to label
+        _loop:
+        push ecx           // Зберігаємо поточне значення лічильника циклу на стек
+            push eax           // Зберігаємо поточне значення регістра eax на стек
+            cmp[eax], 0        // Порівнюємо поточний елемент масиву зі значенням 0
+            jl _lower          // Якщо елемент менше 0, переходимо до мітки _lower
+            jmp _step          // Інакше переходимо до мітки _step
 
-			mov neg, edx //neg <- edx
-			popad //Extracting from the stack the values of all 32-
-	}
-	cout << "Array: " << endl; //output to the
-	for (int i = 0; i < 25; i++, cout << endl) ///
-		cout << setw(4) << arr[i] << " "; ///
-	cout << "\nThe number of negative elements in the array: " << neg << endl;//output to
-	//file output stream close
-	system("pause");
-	//system call for pause command waiting for any input
+            _lower :
+        inc edx            // Збільшуємо значення регістра edx (підраховуємо від'ємний елемент)
+            jmp _step          // Переходимо до мітки _step
+
+            _step :
+        pop eax            // Відновлюємо значення регістра eax зі стеку
+            add eax, 4         // Переходимо до наступного елемента масиву (ціле число займає 4 байти)
+            pop ecx            // Відновлюємо значення лічильника циклу зі стеку
+            loop _loop         // Зменшуємо значення ecx і переходимо до мітки _loop, якщо ecx не дорівнює нулю
+
+            mov neg, edx       // Зберігаємо результат (кількість від'ємних чисел) в змінну neg
+            popad              // Відновлюємо значення всіх регістрів зі стеку
+    }
+
+    // Виводимо масив на екран
+    cout << "Array: " << endl;
+    for (int i = 0; i < 25; i++, cout << endl)
+        cout << setw(4) << arr[i] << " "; // Встановлюємо ширину виведення елемента масиву до 4 символів
+
+    // Виводимо кількість від'ємних елементів у масиві
+    cout << "\nThe number of negative elements in the array: " << neg << endl;
 }
